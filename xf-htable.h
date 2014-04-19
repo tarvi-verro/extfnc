@@ -79,7 +79,8 @@ enum {
  * possibly larger key.
  *
  * However, with 4-byte pointers the room could be limited to hold "1234567"
- * and add no padding, you get "123456". Which is perhaps less than ideal.
+ * and add no padding, you get "123456". At which point the code fork for 
+ * shorter keys is perhaps less than ideal.
  *
  * Use the %XF_HTABLE_KEY_DIRECT_MAX macro to determine how many bytes can
  * @indirect.a hold.
