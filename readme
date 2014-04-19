@@ -1,0 +1,53 @@
+
+	Some additional functions for convinience.
+
+				Versioning
+	  The header version can be found examining the _XF_*_H definition,
+	which defines comma separated version numbers. The format is: 
+	"major,minor,revision", without the quotes of course.
+
+	  New versions, unless major number is iterated, should always work
+	with previous implementations.
+
+				Object orientation (since 0.2b)
+	  When an object(struct) has a bunch of variables that needn't be on 
+	dynamically allocated memory, their lifetime functions are: 
+		(struct xf_X *) xf_X_construct(struct xf_X *x [, ...]);
+		(void) xf_X_destruct(struct xf_X *x [, ...]);
+	
+	  If the main-structure is more convinient in malloc'ed variable
+	sized memory, the functions will allocate the instance for you: 
+		(struct xf_X *) xf_X_create([...]);
+		(void) xf_X_destroy(struct xf_X *x);
+
+	  Note that if both lifetime function types are given, don't use
+	them interchangably.
+
+	  Explanation: the _construct/_destruct is supposed to imply that
+	they're subclass'es (possibly part of a superclass(struct)).
+	_create/_destroy could be class reference.
+	  Generally _create/_destroy add an additional indirection with pointers.
+	  This naming convention carefully avoided using _alloc and _free, which
+	for memory models may conflict with other functionality.
+
+				General macros
+	  Some macros are defined for all libraries. Distinguishing them
+	from header-specific input macros is prefix '_'. These will not be
+	defined nor undefined in the header/source units.
+	  List follows:
+	_XF_STATIC		Whether or not to include function bodies. Defaults
+		to value «1».
+	_XF_FNC_FLAGS	The flags which are prepended to function 
+		definitions. If macro is undefined and _XF_STATIC is 1(or undef),
+		then default is «static inline». If _XF_STATIC is defined and 0,
+		then this defaults to «»(empty def).
+
+	  And some other macros:
+	_XF_MACROS		Used internally when .c is included before .h
+		(expected functions to be linked instead of statically included) 
+		to retrieve the internal "local" definitions.
+	_XF_*_H			Versioning macro as explained above at "Versioning".
+
+	
+	
+
