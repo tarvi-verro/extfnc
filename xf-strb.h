@@ -13,7 +13,7 @@
  * and no declaration keywords if it is not 0.
  */
 #ifndef _XF_STRB_H
-#define _XF_STRB_H 00,02,03
+#define _XF_STRB_H 00,02,11
 
 /* #define _XF_STATIC 0 to use these as external functions */
 #ifndef _XF_STATIC // Whether library should "#include" function bodies
