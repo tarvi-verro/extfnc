@@ -29,10 +29,10 @@ XFFNC void xf_strb_destruct(struct xf_strb *b)
 	assert(b != NULL);
 	/*
 	 * while not an actual error(from the point that it could be allowed as
-	 * free(NULL) is allowed), multiple destructions make no sense and 
-	 * point to code error 
+	 * free(NULL) is allowed), multiple destructions make no sense and
+	 * point to code error
 	 */
-	assert(b->length != 0); 
+	assert(b->length != 0);
 	free(b->a);
 	b->a = NULL;
 	b->size = 0;
@@ -99,7 +99,7 @@ XFFNC int xf_strb_setf(struct xf_strb *b, const char *format, ...)
 		va_start(l, format);
 		vsnprintf(b->a, b->size, format, l);
 	}
-	b->length = r; 
+	b->length = r;
 
 	va_end(l);
 	return r - 1;
@@ -122,12 +122,12 @@ XFFNC int xf_strb_appendf(struct xf_strb *b, const char *format, ...)
 	assert(format != NULL);
 	va_list l;
 	va_start(l, format);
-	int r; 
+	int r;
 	/* vsnprintf's return val doesn't incl. \0, however n(2nd arg) does */
 	r = vsnprintf(b->a + b->length - 1, b->size - b->length + 1, format, l);
 
 	/* cast to int so sz0-len1 doesnt overflow */
-	if (r > (int) (b->size - b->length)) { 
+	if (r > (int) (b->size - b->length)) {
 		/* size and length both contain NULL terminator length, */
 		/* so their difference doesn't */
 		xf_strb_expand(b, b->length + r + 0);
@@ -148,12 +148,12 @@ XFFNC int xf_strb_vappendf(struct xf_strb *b, const char *format, va_list l)
 
 	va_list cpy;
 	va_copy(cpy, l);
-	int r; 
+	int r;
 	/* vsnprintf's return val doesn't incl. \0, however n(2nd arg) does */
 	r = vsnprintf(b->a + b->length - 1, b->size - b->length + 1, format, l);
 
 	/* cast to int so sz0-len1 doesnt overflow */
-	if (r > (int) (b->size - b->length)) { 
+	if (r > (int) (b->size - b->length)) {
 		/* size and length both contain NULL terminator length, */
 		/* so their difference doesn't */
 		xf_strb_expand(b, b->length + r);
@@ -228,7 +228,7 @@ XFFNC int xf_strb_insertf(struct xf_strb *b, int index,
 
 	b->length += r;
 	return r;
-} 
+}
 
 XFFNC int xf_strb_insert(struct xf_strb *b, int index,
 		const char *s)
@@ -259,14 +259,14 @@ XFFNC void xf_strb_rmwhite(struct xf_strb *b)
 	int i;
 	for (i = 0; i < b->length; i++)
 	{
-		if (*(b->a + i) == 32 || *(b->a + i) == '\t' || *(b->a + i) == '\n' 
+		if (*(b->a + i) == 32 || *(b->a + i) == '\t' || *(b->a + i) == '\n'
 				|| *(b->a + i) == '\r' ) continue;
 		if (i == 0) break;
 		b->length -= i;
 		memmove(b->a, b->a + i, b->length);
 		break;
 	}
-	if (i == b->length) 
+	if (i == b->length)
 	{
 		b->length = 1;
 		b->a[0] = '\0';

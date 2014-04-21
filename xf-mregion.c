@@ -39,7 +39,7 @@ XFFNC void *xf_mregion_alloc(struct xf_mregion *r, size_t size)
 	assert(size > 0);
 	struct xf_mregion_sub *s;
 	for (s = &r->sub; s != NULL; s = s->next) {
-		if (s->size - s->length < size) 
+		if (s->size - s->length < size)
 			continue;
 		void *rv = s->data + s->length;
 		s->length += size;
@@ -82,12 +82,12 @@ XFFNC void xf_mregion_rewind(struct xf_mregion *r, void *mem)
 		if (((char *)mem) < s->data || ((char *)mem) > s->data + s->length)
 			continue;
 		s->length = (unsigned int) ((char *)mem - s->data);
-		for (s = s->next; s != NULL; s = s->next) 
+		for (s = s->next; s != NULL; s = s->next)
 			s->length = 0;
 		return;
 	}
 	/* if control reaches this point, mem is not part of (active) region */
-	assert(1==2); 
+	assert(1==2);
 	return;
 }
 

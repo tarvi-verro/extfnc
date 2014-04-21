@@ -47,20 +47,20 @@ XFFNC size_t xf_htable_memcnt(struct xf_htable *t)
 	assert(t->buckets != NULL);
 	size_t cnt = 0;
 	cnt += (t->res_mask + 1) * sizeof(void *);
-	
+
 	int i, l;
 	for (i = 0, l = t->res_mask + 1; i < l; i++) {
 		struct xf_htable_bucket *b = t->buckets[i];
 		if (!b)
 			continue;
-		cnt += sizeof(struct xf_htable_bucket) 
+		cnt += sizeof(struct xf_htable_bucket)
 			+ sizeof(union xf_htable_key) * b->size
 			+ t->value_size * b->size;
 	}
 	return cnt;
 }
 
-/** 
+/**
  * xf_htable_get() - gets a slot for key/value pair
  * @t:		hashtable
  * @key:	key to get the slot for
@@ -90,7 +90,7 @@ static int xf_htable_get(struct xf_htable *t, const void *key, size_t keylen,
 		t->buckets[bid] = b;
 		goto newentry;
 	} else {
-		b = t->buckets[bid]; 
+		b = t->buckets[bid];
 	}
 	/* look for a matching key already in table */
 	int i;
@@ -102,7 +102,7 @@ static int xf_htable_get(struct xf_htable *t, const void *key, size_t keylen,
 			*rb = b;
 			return 1;
 		} else if (b->data[i].indirect.length == keylen
-				&& !memcmp(b->data[i].indirect.ptr, key, keylen)) {  
+				&& !memcmp(b->data[i].indirect.ptr, key, keylen)) {
 			*rpair_index = i;
 			*rb = b;
 			return 1;
@@ -116,12 +116,12 @@ static int xf_htable_get(struct xf_htable *t, const void *key, size_t keylen,
 		int nsize = (XF_HTABLE_EXPANDFNC(b->size));
 		nsize = nsize > USHRT_MAX ? USHRT_MAX : nsize;
 		b = realloc(b, sizeof(struct xf_htable_bucket)
-				+ sizeof(union xf_htable_key) * nsize 
+				+ sizeof(union xf_htable_key) * nsize
 				+ t->value_size + nsize);
 		/* move values over */
-		memmove(((char *) b->data) + nsize * sizeof(union xf_htable_key), 
-				((char *) b->data) + 
-				b->size * sizeof(union xf_htable_key), 
+		memmove(((char *) b->data) + nsize * sizeof(union xf_htable_key),
+				((char *) b->data) +
+				b->size * sizeof(union xf_htable_key),
 				b->length * t->value_size);
 		b->size = nsize;
 		t->buckets[bid] = b; /* lol */
@@ -146,27 +146,30 @@ newentry:;
 	return 2;
 }
 
-XFFNC int xf_htable_set(struct xf_htable *t, const void *key, size_t keylen,
+XFFNC int xf_htable_add(struct xf_htable *t, const void *key, size_t keylen,
 		const void *value_in)
 {
 	struct xf_htable_bucket *b;
 	int b_index;
-	if (!xf_htable_get(t, key, keylen, &b, &b_index))
+	int rv = xf_htable_get(t, key, keylen, &b, &b_index);
+	if (!rv)
 		return XF_HTABLE_EFULL;
+	else if (rv == 1)
+		return XF_HTABLE_ESET;
 
-	memcpy(xf_htable_bucket_val(t, b, b_index), value_in, 
+	memcpy(xf_htable_bucket_val(t, b, b_index), value_in,
 			t->value_size);
 	return XF_HTABLE_ESUCCESS;
 }
 
 XFFNC void *xf_htable_see(struct xf_htable *t, const void *key, size_t keylen,
 		const void *value_def)
-{ 
+{
 	struct xf_htable_bucket *b;
 	int b_index;
 	int gv = xf_htable_get(t, key, keylen, &b, &b_index);
-	if (!gv) { 
-		return NULL; 
+	if (!gv) {
+		return NULL;
 	}
 	void *val = xf_htable_bucket_val(t, b, b_index);
 	if (gv == 2) {
@@ -178,19 +181,28 @@ XFFNC void *xf_htable_see(struct xf_htable *t, const void *key, size_t keylen,
 	return val;
 }
 
+XFFNC int xf_htable_verify(struct xf_htable *t, const void *key, size_t keylen,
+		const void *value)
+{
+	void *v = xf_htable_find(t, key, keylen);
+	if (v == NULL) return XF_HTABLE_ENOTFOUND;
+	return !memcmp(value, v, t->value_size)
+		? XF_HTABLE_ESUCCESS : XF_HTABLE_ENOTEQUAL;
+}
+
 XFFNC void *xf_htable_find(struct xf_htable *t, const void *key, size_t keylen)
 {
 	uint32_t bid = t->hash(key, keylen) & t->res_mask;
 	struct xf_htable_bucket *b = t->buckets[bid];
 
-	if (b == NULL) 
+	if (b == NULL)
 		return NULL;
 
 	union xf_htable_key *k;
 	int i;
 	for (i = 0; i < b->length; i++) {
 		k = b->data + i;
-		if (k->accesstyp == XF_HTABLE_KEY_DIRECT 
+		if (k->accesstyp == XF_HTABLE_KEY_DIRECT
 				&& k->direct.length == keylen
 				&& !memcmp(k->direct.a, key, keylen))
 			return xf_htable_bucket_val(t, b, i);
@@ -202,38 +214,13 @@ XFFNC void *xf_htable_find(struct xf_htable *t, const void *key, size_t keylen)
 	return NULL;
 }
 
-XFFNC int xf_htable_remove(struct xf_htable *t, const void *key, 
+XFFNC int xf_htable_remove(struct xf_htable *t, const void *key,
 		size_t keylen)
 {
 	assert(1!=1); // requires implementation
 	return XF_HTABLE_ESUCCESS;
 }
 
-XFFNC int xf_htable_entry_find(struct xf_htable *t, struct xf_htable_entry *e)
-{
-	assert(1==2); // requires implementation
-	return XF_HTABLE_ESUCCESS;
-}
-
-XFFNC void *xf_htable_entry_val(struct xf_htable *t, struct xf_htable_entry *e)
-{
-	assert(1==2); // requires implementation
-	return NULL;
-}
-
-XFFNC int xf_htable_entry_insert(struct xf_htable *t, struct xf_htable_entry *e,
-		void *value_in)
-{
-	assert(1==2);
-	return XF_HTABLE_ESUCCESS;
-}
-
-XFFNC int xf_htable_entry_remove(struct xf_htable *t, 
-		struct xf_htable_entry *e)
-{
-	assert(1==2);
-	return XF_HTABLE_ESUCCESS;
-}
 
 /**
  * xf_hash_jenkins_oaat() - Bob Jenkins' One-at-a-Time hash
@@ -265,7 +252,7 @@ XFFNC uint32_t xf_hash_jenkins_oaat(const char* key, int len)
  *
  * Source: http://www.azillionmonkeys.com/qed/hash.html
  */
-XFFNC uint32_t xf_hash_hsieh_superfast(const char *data, int len) 
+XFFNC uint32_t xf_hash_hsieh_superfast(const char *data, int len)
 {
 #ifndef get16bits
 # if (defined(__GNUC__) && defined(__i386__)) || defined(__WATCOMC__) \
