@@ -214,11 +214,45 @@ XFFNC void *xf_htable_find(struct xf_htable *t, const void *key, size_t keylen)
 	return NULL;
 }
 
+static void xf_htable_bucket_remove(struct xf_htable *t, struct xf_htable_bucket *b, int index)
+{
+	memmove(b->data + index, b->data + index + 1,
+			(b->length - index - 1) * sizeof(union xf_htable_key));
+	void *v = b->data + b->size;
+	memmove(v + t->value_size * index, v + t->value_size * index + 1,
+			(b->length - index - 1) * t->value_size);
+	b->length--;
+}
+
 XFFNC int xf_htable_remove(struct xf_htable *t, const void *key,
 		size_t keylen)
 {
-	assert(1!=1); // requires implementation
-	return XF_HTABLE_ESUCCESS;
+	assert(t != NULL);
+	assert(key != NULL);
+	assert(keylen > 0);
+	uint32_t bid = t->hash(key, keylen) & t->res_mask;
+	struct xf_htable_bucket *b = t->buckets[bid];
+
+	if (b == NULL)
+		return XF_HTABLE_ENOTFOUND;
+
+	union xf_htable_key *k;
+	int i;
+	for (i = 0; i < b->length; i++) {
+		k = b->data + i;
+		if (k->accesstyp == XF_HTABLE_KEY_DIRECT) {
+			if (k->direct.length != keylen
+					|| memcmp(k->direct.a, key, keylen))
+				continue;
+		} else if (k->accesstyp == XF_HTABLE_KEY_INDIRECT) {
+			if (k->indirect.length != keylen
+					|| memcmp(k->indirect.ptr, key, keylen))
+				continue;
+		}
+		xf_htable_bucket_remove(t, b, i);
+		return XF_HTABLE_ESUCCESS;
+	}
+	return XF_HTABLE_ENOTFOUND;
 }
 
 
