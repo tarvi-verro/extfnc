@@ -19,7 +19,7 @@ XFFNC void xf_htable_construct(struct xf_htable *t, unsigned int size_bits,
 	t->res_mask = (1 << size_bits) - 1;
 	t->hash = hash;
 	t->value_size = value_size;
-	t->buckets = calloc(1 << size_bits, sizeof(void *));
+	t->buckets = calloc(1 << size_bits, sizeof(*t->buckets));
 }
 
 XFFNC void xf_htable_destruct(struct xf_htable *t)
