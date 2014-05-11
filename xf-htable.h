@@ -108,7 +108,7 @@ union xf_htable_key {
  * @length:	total members in @data
  * @size:	maximum members @data can hold
  * @data:	bytes holding an array for keys (offset 0) and an array for
- * 		values (offset @size * sizeof() &union xf_htable_key )
+ *		values (offset @size * sizeof() &union xf_htable_key )
  *
  * Values are stored in an array after @data, use the function
  * xf_htable_bucket_val() to retrieve them.
@@ -123,16 +123,16 @@ struct xf_htable_bucket {
  * struct xf_htable - instance of hash-table
  * @hash:	hash function used for distributing the data
  * @res_mask:	mask to bitwise AND out high bits to get a bucket's index;
- * 		@res_mask + 1 to get amount of buckets
+ *		@res_mask + 1 to get amount of buckets
  * @value_size:	how many bytes does a single value take up
  * @buckets:	list of buckets, a bucket slot may be %NULL if no entry has yet
- * 		been associated with it
+ *		been associated with it
  *
  * Limitations:
- * 	Each bucket can maximally hold %USHRT_MAX entries.
+ *	Each bucket can maximally hold %USHRT_MAX entries.
  *
- * 	Values must all take up the same size in the table, however you're free
- * 	to store a pointer as a value.
+ *	Values must all take up the same size in the table, however you're free
+ *	to store a pointer as a value.
  */
 struct xf_htable
 {
@@ -162,20 +162,20 @@ static inline void *xf_htable_bucket_val(struct xf_htable *tbl,
  * xf_htable_construct() - initialize an instance of struct xf_htable
  * @t:		instance to initialize
  * @size_bits:	how many bits to use for bucket IDs;
- * 		2^@size_bits = how many buckets to distribute the load over
+ *		2^@size_bits = how many buckets to distribute the load over
  * @value_size:	the byte-size of data you wish to associate with the keys
  * @hash:	the hash function used to select a  bucket, write/find your
- * 		own or use one of xf_hash_*
+ *		own or use one of xf_hash_*
  *
  * Example values for @size_bits
  *
- * 		1 - 2 buckets total (IDs 0-1)
+ *		1 - 2 buckets total (IDs 0-1)
  *
- * 		2 - 4 buckets total (IDs 0-3)
+ *		2 - 4 buckets total (IDs 0-3)
  *
- * 		3 - 8 buckets total (IDs 0-7)
+ *		3 - 8 buckets total (IDs 0-7)
  *
- * 		4 - 16 buckets total (IDs 0-15)
+ *		4 - 16 buckets total (IDs 0-15)
  */
 XFFNC void xf_htable_construct(struct xf_htable *t, unsigned int size_bits,
 		size_t value_size, uint32_t (*hash)(const char *,int));
@@ -206,10 +206,10 @@ XFFNC void xf_htable_clear(struct xf_htable *t);
  * @key:	the key to associate the value with
  * @keylen:	length of @key in bytes
  * @value:	where to read the value associated with the key from -
- * 		@t->value_size bytes will be read and copied
+ *		@t->value_size bytes will be read and copied
  *
- * Return: 	%XF_HTABLE_ESUCCESS on success, %XF_HTABLE_EFULL if the bucket
- * 		can't store it and %XF_HTABLE_ESET if an entry already exists
+ * Return:	%XF_HTABLE_ESUCCESS on success, %XF_HTABLE_EFULL if the bucket
+ *		can't store it and %XF_HTABLE_ESET if an entry already exists
  */
 XFFNC int xf_htable_add(struct xf_htable *t, const void *key, size_t keylen,
 		const void *value);
@@ -220,14 +220,14 @@ XFFNC int xf_htable_add(struct xf_htable *t, const void *key, size_t keylen,
  * @key:	key to associate value with
  * @keylen:	length of @key
  * @value_def:	value to associate the key with if it's not in the table or
- * 		%NULL to memset() the value to null
+ *		%NULL to memset() the value to null
  *
  * As these functions do not create a new copy of the keys, it might be
  * necessary to free the @key memory if an existing entry was returned.
  * It is possible detect this by comparing returned memory against @value_def.
  *
  * Return:	%NULL if a new entry could not be added (bucket cannot hold
- * 		more) and an existing entry by given @key is not in the table
+ *		more) and an existing entry by given @key is not in the table
  */
 XFFNC void *xf_htable_see(struct xf_htable *t, const void *key, size_t keylen,
 		const void *value_def);
@@ -239,8 +239,8 @@ XFFNC void *xf_htable_see(struct xf_htable *t, const void *key, size_t keylen,
  * @keylen:	length of the @key in bytes
  *
  * Return:	%NULL or a pointer to the value as it is in the bucket, which
- * 		contents are safe to modify so long as xf_htable_set(),
- * 		xf_htable_see() and xf_htable_remove() are not called.
+ *		contents are safe to modify so long as xf_htable_set(),
+ *		xf_htable_see() and xf_htable_remove() are not called.
  */
 XFFNC void *xf_htable_find(struct xf_htable *t, const void *key, size_t keylen);
 
@@ -252,14 +252,14 @@ XFFNC void *xf_htable_find(struct xf_htable *t, const void *key, size_t keylen);
  * @value:	the value to match
  *
  * Return:	%XF_HTABLE_ESUCCESS if the key/value pair is in the table and
- * 		equal
+ *		equal
  *
- * 		%XF_HTABLE_ENOTFOUND if such key isn't in the table
+ *		%XF_HTABLE_ENOTFOUND if such key isn't in the table
  *
- * 		%XF_HTABLE_ENOTEQUAL if corresponding entry was found for @key
- * 		and that the values aren't equal (bear in mind that padding
- * 		bytes in structures are undetermined unless specifically set
- * 		with memset() or calloc())
+ *		%XF_HTABLE_ENOTEQUAL if corresponding entry was found for @key
+ *		and that the values aren't equal (bear in mind that padding
+ *		bytes in structures are undetermined unless specifically set
+ *		with memset() or calloc())
  */
 XFFNC int xf_htable_verify(struct xf_htable *t, const void *key, size_t keylen,
 		const void *value);
@@ -271,7 +271,7 @@ XFFNC int xf_htable_verify(struct xf_htable *t, const void *key, size_t keylen,
  * @keylen:	length of the @key in bytes
  *
  * Return:	%XF_HTABLE_ESUCCESS on success, %XF_HTABLE_ENOTFOUND if key
- * 		wasn't found
+ *		wasn't found
  */
 XFFNC int xf_htable_remove(struct xf_htable *t, const void *key,
 		size_t keylen);

@@ -3,20 +3,20 @@ Some common functionality that isn't specific to any particular project.
 
 			Versioning
   The header version can be found examining the _XF_*_H definition,
-which defines comma separated version numbers. The format is: 
+which defines comma separated version numbers. The format is:
 "major,minor,revision", without the quotes of course.
 
   New versions, unless major number is iterated, should always work
 with previous implementations.
 
 			Object orientation (since 0.2b)
-  When an object(struct) has a bunch of variables that needn't be on 
-dynamically allocated memory, their lifetime functions are: 
+  When an object(struct) has a bunch of variables that needn't be on
+dynamically allocated memory, their lifetime functions are:
 	(struct xf_X *) xf_X_construct(struct xf_X *x [, ...]);
 	(void) xf_X_destruct(struct xf_X *x [, ...]);
 
   If the main-structure is more convinient in malloc'ed variable
-sized memory, the functions will allocate the instance for you: 
+sized memory, the functions will allocate the instance for you:
 	(struct xf_X *) xf_X_create([...]);
 	(void) xf_X_destroy(struct xf_X *x);
 
@@ -37,14 +37,14 @@ defined nor undefined in the header/source units.
   List follows:
 _XF_STATIC		Whether or not to include function bodies. Defaults
 	to value «1».
-_XF_FNC_FLAGS		The flags which are prepended to function 
+_XF_FNC_FLAGS		The flags which are prepended to function
 	definitions. If macro is undefined and _XF_STATIC is 1(or undef),
 	then default is «static inline». If _XF_STATIC is defined and 0,
 	then this defaults to «»(empty def).
 
   And some other macros:
 _XF_MACROS		Used internally when .c is included before .h
-	(expected functions to be linked instead of statically included) 
+	(expected functions to be linked instead of statically included)
 	to retrieve the internal "local" definitions.
 _XF_*_H			Versioning macro as explained above at "Versioning".
 

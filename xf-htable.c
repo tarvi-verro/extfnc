@@ -70,9 +70,9 @@ XFFNC size_t xf_htable_memcnt(struct xf_htable *t)
  *
  * Return:	0 if XF_HTABLE_EFULL
  *
- * 		1 if given key was already in the table and it was returned
+ *		1 if given key was already in the table and it was returned
  *
- * 		2 if a new a new slot was allocated and returned
+ *		2 if a new a new slot was allocated and returned
  */
 static int xf_htable_get(struct xf_htable *t, const void *key, size_t keylen,
 		struct xf_htable_bucket **rb, int *rpair_index)
@@ -106,7 +106,7 @@ static int xf_htable_get(struct xf_htable *t, const void *key, size_t keylen,
 			*rpair_index = i;
 			*rb = b;
 			return 1;
-	       	}
+		}
 	}
 	/* no key in table - insert new*/
 	if (b->size <= b->length) { /* expand bucket? */
@@ -316,18 +316,18 @@ XFFNC uint32_t xf_hash_hsieh_superfast(const char *data, int len)
 
 	/* Handle end cases */
 	switch (rem) {
-		case 3: hash += get16bits (data);
-			hash ^= hash << 16;
-			hash ^= ((signed char)data[sizeof (uint16_t)]) << 18;
-			hash += hash >> 11;
-			break;
-		case 2: hash += get16bits (data);
-			hash ^= hash << 11;
-			hash += hash >> 17;
-			break;
-		case 1: hash += (signed char)*data;
-			hash ^= hash << 10;
-			hash += hash >> 1;
+	case 3: hash += get16bits (data);
+		hash ^= hash << 16;
+		hash ^= ((signed char)data[sizeof (uint16_t)]) << 18;
+		hash += hash >> 11;
+		break;
+	case 2: hash += get16bits (data);
+		hash ^= hash << 11;
+		hash += hash >> 17;
+		break;
+	case 1: hash += (signed char)*data;
+		hash ^= hash << 10;
+		hash += hash >> 1;
 	}
 
 	/* Force "avalanching" of final 127 bits */
