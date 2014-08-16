@@ -117,7 +117,7 @@ static int xf_htable_get(struct xf_htable *t, const void *key, size_t keylen,
 		nsize = nsize > USHRT_MAX ? USHRT_MAX : nsize;
 		b = realloc(b, sizeof(struct xf_htable_bucket)
 				+ sizeof(union xf_htable_key) * nsize
-				+ t->value_size + nsize);
+				+ t->value_size * nsize);
 		/* move values over */
 		memmove(((char *) b->data) + nsize * sizeof(union xf_htable_key),
 				((char *) b->data) +
