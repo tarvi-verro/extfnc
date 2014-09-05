@@ -105,6 +105,30 @@ XFFNC int xf_strb_setf(struct xf_strb *b, const char *format, ...)
 	return r - 1;
 }
 
+XFFNC int xf_strb_vsetf(struct xf_strb *b, const char *format, va_list v)
+{
+	assert(b != NULL);
+	assert(format != NULL);
+
+	va_list cpy;
+	va_copy(cpy, v);
+	int r;
+	/* vsnprintf's return val doesn't incl. \0, however n(2nd arg) does */
+	r = vsnprintf(b->a, b->size, format, v);
+
+	/* cast to int so sz0-len1 doesnt overflow */
+	if (r > (int) (b->size - b->length)) {
+		/* size and length both contain NULL terminator length, */
+		/* so their difference doesn't */
+		xf_strb_expand(b, b->length + r);
+		r = vsnprintf(b->a, b->size, format, cpy);
+	}
+	b->length = r + 1;
+
+	va_end(v);
+	return r;
+}
+
 XFFNC int xf_strb_append(struct xf_strb *b, const char *s)
 {
 	assert(b != NULL);
@@ -189,7 +213,7 @@ XFFNC int xf_strb_prependf(struct xf_strb *b, const char *format, ...)
 	xf_strb_expand(b, b->length + r);
 	memmove(b->a + r, b->a, b->length);
 
-	if (r + 1 > 24) {
+	if (r + 1 >= 24) {
 		tmp[0] = b->a[r];
 		va_end(l);
 		va_start(l, format);
@@ -216,10 +240,14 @@ XFFNC int xf_strb_insertf(struct xf_strb *b, int index,
 
 	xf_strb_expand(b, b->length + r);
 	memmove(b->a + index + r, b->a + index, b->length - index);
-	if (r + 1 > 24) {
+	if (r + 1 >= 24) {
 		va_end(l);
 		va_start(l, format);
-		vsnprintf(b->a + index, b->size - index, format, l);
+		/* Save the byte and rewrite it afterwise, because vsnprintf()
+		 * writes '\0' to the end which will erase useful info */
+		char sav = b->a[index + r];
+		vsnprintf(b->a + index, r + 1, format, l);
+		b->a[index + r] = sav;
 	} else {
 		memcpy(b->a + index, tmp, r);
 	}
@@ -250,6 +278,17 @@ XFFNC void xf_strb_clear(struct xf_strb *b)
 	assert(b != NULL);
 	b->length = 1;
 	b->a[0] = '\0';
+}
+
+XFFNC void xf_strb_delete(struct xf_strb *b, int start, int length)
+{
+	assert(b != NULL);
+	assert(length >= 0);
+	assert(start + length < b->length);
+
+	memmove(b->a + start, b->a + start + length,
+			b->length - (start + length));
+	b->length -= length;
 }
 
 XFFNC void xf_strb_rmwhite(struct xf_strb *b)

@@ -101,6 +101,14 @@ XFFNC void xf_strb_destruct(struct xf_strb *b);
 XFFNC void xf_strb_clear(struct xf_strb *b);
 
 /**
+ * xf_strb_delete() - deletes characters from the buffer
+ * @b:		the buffer instance to modify
+ * @start:	the first character to erase
+ * @length:	how many characters to erase
+ */
+XFFNC void xf_strb_delete(struct xf_strb *b, int start, int length);
+
+/**
  * xf_strb_rmwhite() - trims the string start and end of whitespaces
  * @b:		&struct xf_strb instance to trim whitespaces from
  */
@@ -167,6 +175,19 @@ XFFNC int xf_strb_set(struct xf_strb *b, const char *s);
  */
 XFFNC int xf_strb_setf(struct xf_strb *b, const char *format, ...)
 	__attribute__((format(printf,2,3)));
+
+#ifdef _STDARG_H
+/**
+ * xf_strb_vsetf() - replace the buffer contents va_list arguments
+ * @b:		the target buffer whose contents to modify
+ * @format:	printf() style format string describing @v
+ * @v:		variable argument list
+ *
+ * Return:	Amount of characters written to buffer (not counting '\0'
+ *		string terminator).
+ */
+XFFNC int xf_strb_vsetf(struct xf_strb *b, const char *format, va_list v);
+#endif
 
 /**
  * xf_strb_append() - add given string to the end of the buffer
