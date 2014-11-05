@@ -120,29 +120,12 @@ XFFNC void xf_mregion_destroy(struct xf_mregion *r);
 XFFNC void *xf_mregion_alloc(struct xf_mregion *r, size_t size);
 
 /**
- * xf_mregion_rewind() - rewind the latest allocations to region
- * @r:		region to rewind
- * @mem:	the memory to rewind the allocations to, as returned by
- * 		xf_mregion_alloc(); any memory that was allocated from given
- * 		region after that allocation, should not be used
- * 		(consider them free()'d aswell)
- *
- * Note that if given @mem is not the latest memory allocated from the region,
- * some of the memory for the later allocations may have been taken from
- * previous subregions, and so would become dead data until region is
- * destroyed or rewound more. This is because all previous subregions will
- * also be considered for memory to be allocated out of for maximal usage.
+ * xf_mregion_undo() - undo the previous allocation
+ * @r:		the region that the undesired memory was allocated out of
+ * @mem:	the memory to return to region as returned by
+ *		xf_mregion_alloc()
  */
-XFFNC void xf_mregion_rewind(struct xf_mregion *r, void *mem);
-
-/**
- * xf_mregion_pos() - return a placeholder for rewind
- * @r:		memory region whose memory to inspect
- *
- * Return:	returns the pointer to the outermost xf_mregion_alloc()'ed
- * 		space plus one
- */
-XFFNC void *xf_mregion_pos(struct xf_mregion *r);
+XFFNC void xf_mregion_undo(struct xf_mregion *r, void *mem);
 
 /**
  * xf_mregion_clear() - rewind all of the memory to be once again usable

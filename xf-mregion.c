@@ -74,7 +74,7 @@ XFFNC void xf_mregion_clear(struct xf_mregion *r)
 		s->length = 0;
 }
 
-XFFNC void xf_mregion_rewind(struct xf_mregion *r, void *mem)
+XFFNC void xf_mregion_undo(struct xf_mregion *r, void *mem)
 {
 	struct xf_mregion_sub *s = &r->sub;
 
@@ -82,20 +82,11 @@ XFFNC void xf_mregion_rewind(struct xf_mregion *r, void *mem)
 		if (((char *)mem) < s->data || ((char *)mem) > s->data + s->length)
 			continue;
 		s->length = (unsigned int) ((char *)mem - s->data);
-		for (s = s->next; s != NULL; s = s->next)
-			s->length = 0;
 		return;
 	}
 	/* if control reaches this point, mem is not part of (active) region */
 	assert(1==2);
 	return;
-}
-
-XFFNC void *xf_mregion_pos(struct xf_mregion *r)
-{
-	struct xf_mregion_sub *s;
-	for (s = &r->sub; s->next != NULL; s = s->next);
-	return s->data + s->length;
 }
 
 XFFNC size_t xf_mregion_memcnt(struct xf_mregion *r)
